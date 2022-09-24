@@ -12,31 +12,23 @@ struct ContentView: View {
     @State private var numberOfPeople = 2
     @State private var tipPercentage = 20
     @FocusState private var amountIsFocused: Bool
-    var currency = FloatingPointFormatStyle<Double>.Currency(code: Locale.current.currencyCode ?? "USD")
+    var localCurrency: FloatingPointFormatStyle<Double>.Currency = .currency(code: Locale.current.currencyCode ?? "USD")
+    
+    var grandTotal: Double {
+        let tipSelection = Double(tipPercentage)
+        let tipValue = checkAmount / 100 * tipSelection
+        return checkAmount + tipValue
+    }
     
     var totalPerPerson: Double {
-        let peopleCount = Double(numberOfPeople + 2)
-        let tipSelection = Double(tipPercentage)
-        
-        let tipValue = checkAmount / 100 * tipSelection
-        let grandTotal = checkAmount + tipValue
-        let amountPerPerson = grandTotal / peopleCount
-        
-        return amountPerPerson
+        grandTotal / Double(numberOfPeople + 2)
     }
-    
-    var totalAmount: Double {
-        let tipSelection = Double(tipPercentage)
-        let tipValue = checkAmount / 100 * tipSelection
-        let total = checkAmount + tipValue
-        return total
-    }
-    
+        
     var body: some View {
         NavigationView {
             Form {
                 Section {
-                    TextField("Amount", value: $checkAmount, format: .currency(code: Locale.current.currencyCode ?? "USD"))
+                    TextField("Amount", value: $checkAmount, format: localCurrency)
                     .keyboardType(.decimalPad)
                     .focused($amountIsFocused)
                     
@@ -59,15 +51,15 @@ struct ContentView: View {
                 }
                 
                 Section {
-                    Text(totalPerPerson, format: currency)
+                    Text(grandTotal, format: localCurrency)
                 } header: {
-                    Text("Amount per person")
+                    Text("Total Amount")
                 }
                 
                 Section {
-                    Text(totalAmount, format: currency)
+                    Text(totalPerPerson, format: localCurrency)
                 } header: {
-                    Text("Total Amount Including Tip")
+                    Text("Amount per person")
                 }
             }
             .navigationTitle("WeSplit")
